@@ -1,0 +1,50 @@
+name: "book-social-network"
+
+services:
+  postgres:
+    container_name: postgres-bsn
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: book_social_network
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+      - book-network-net
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin-bsn
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - book-network-net
+    restart: unless-stopped
+
+  mail-dev:
+    container_name: maildev-bsn
+    image: maildev/maildev
+    ports:
+      - 1080:1080
+      - 1025:1025
+
+
+networks:
+  book-network-net:
+    driver: bridge
+
+volumes:
+  pgadmin:
+  postgres:
+    driver: local
