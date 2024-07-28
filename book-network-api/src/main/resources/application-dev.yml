@@ -32,7 +32,7 @@ spring:
         timeout: 3000
         writetimeout: 5000
 
-#custom props
+#custom properties
 application:
   security:
     jwt:
@@ -40,3 +40,7 @@ application:
       expiration: 86400000 # a day
       refresh-token:
         expiration: 604800000 # 7 days
+  mailing:
+    from-email: ${FROM_EMAIL}
+    frontend:
+      activation-url: http://localhost:4200/activate-account
