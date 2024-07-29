@@ -2,8 +2,10 @@ package com.yvolabs.book.auth;
 
 import com.yvolabs.book.email.EmailService;
 import com.yvolabs.book.email.EmailTemplateName;
+import com.yvolabs.book.exception.ActivationTokenException;
 import com.yvolabs.book.role.Role;
 import com.yvolabs.book.role.RoleRepository;
+import com.yvolabs.book.security.JwtService;
 import com.yvolabs.book.user.Token;
 import com.yvolabs.book.user.TokenRepository;
 import com.yvolabs.book.user.User;
@@ -14,11 +16,17 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.yvolabs.book.enums.RoleName.USER;
@@ -38,6 +46,8 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -64,6 +74,46 @@ public class AuthenticationService {
         userRepository.save(user);
         sendValidationEmail(user);
 
+    }
+
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        var user = (User) auth.getPrincipal();
+        var claims = new HashMap<String, Object>();
+        claims.put("fullName", user.getFullName());
+
+        var jwtToken = jwtService.generateToken(claims, user);
+
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+    }
+
+    @Transactional
+    public String activateAccount(String token) throws MessagingException {
+        Token savedToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new ActivationTokenException("Invalid token"));
+
+        if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
+            sendValidationEmail(savedToken.getUser());
+            return "Activation token has expired. A new token has been sent to the same email address";
+
+            // @NOTE: Because sendValidationEmail() is Async, if we throw this error, the data is not being saved to db, so instead I returned the error as a string
+            // throw new ActivationTokenException("Activation token has expired. A new token has been sent to the same email address");
+        }
+
+        User user = userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + savedToken.getUser().getId()));
+
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        savedToken.setValidatedAt(LocalDateTime.now());
+        tokenRepository.save(savedToken);
+        return "Account activated";
     }
 
     private void sendValidationEmail(User user) throws MessagingException {

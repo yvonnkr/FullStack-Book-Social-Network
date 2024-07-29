@@ -58,10 +58,15 @@ public class EmailService {
         helper.setTo(to);
         helper.setSubject(subject);
 
-        log.info("Sending email to: {}", to);
-        String template = templateEngine.process(templateName, thymeleafContext);
-        helper.setText(template, true);
-        mailSender.send(mimeMessage);
-        log.info("Email sent to: {}", to);
+        try {
+            log.info("Sending email to: {}", to);
+            String template = templateEngine.process(templateName, thymeleafContext);
+            helper.setText(template, true);
+            mailSender.send(mimeMessage);
+            log.info("Email sent to: {}", to);
+        } catch (Exception e) {
+            log.info("Error sending email to: {}", e.getMessage());
+        }
+
     }
 }
