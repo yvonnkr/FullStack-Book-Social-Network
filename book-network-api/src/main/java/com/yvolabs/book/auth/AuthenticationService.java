@@ -49,6 +49,8 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
+    private final String ACCOUNT_ACTIVATED_MESSAGE = "Account activated";
+
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
 
@@ -73,7 +75,6 @@ public class AuthenticationService {
 
         userRepository.save(user);
         sendValidationEmail(user);
-
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -94,8 +95,9 @@ public class AuthenticationService {
 
     @Transactional
     public String activateAccount(String token) throws MessagingException {
+
         Token savedToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new ActivationTokenException("Invalid token"));
+                .orElseThrow(() -> new ActivationTokenException("Invalid activation token"));
 
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
@@ -113,7 +115,8 @@ public class AuthenticationService {
 
         savedToken.setValidatedAt(LocalDateTime.now());
         tokenRepository.save(savedToken);
-        return "Account activated";
+        return ACCOUNT_ACTIVATED_MESSAGE;
+
     }
 
     private void sendValidationEmail(User user) throws MessagingException {
@@ -124,7 +127,7 @@ public class AuthenticationService {
                 EmailTemplateName.ACTIVATE_ACCOUNT,
                 activationUrl,
                 newToken,
-                "Account Activation"
+                ACCOUNT_ACTIVATED_MESSAGE
         );
     }
 
