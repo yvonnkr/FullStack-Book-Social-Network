@@ -109,6 +109,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleAllUnHandledExceptions(Exception e) {
+        e.printStackTrace();
         return ResponseEntity
                 .status(BAD_REQUEST)
                 .body(ExceptionResponse.builder()
