@@ -14,3 +14,7 @@ springdoc:
 server:
   servlet:
     context-path: /api/v1/
+
+logging:
+  level:
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: ERROR
