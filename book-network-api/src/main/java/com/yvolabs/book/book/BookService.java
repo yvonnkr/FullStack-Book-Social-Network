@@ -1,5 +1,6 @@
 package com.yvolabs.book.book;
 
+import com.yvolabs.book.common.PageResponse;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -9,4 +10,11 @@ import org.springframework.security.core.Authentication;
  */
 public interface BookService {
     Integer save(BookRequest request, Authentication connectedUser);
+
+    BookResponse findById(Integer bookId);
+
+    PageResponse<BookResponse> findAllBooks(int page, int size, Authentication connectedUser);
+
+    PageResponse<BookResponse> findAllBooksByOwner(int page, int size, Authentication connectedUser);
+
 }
