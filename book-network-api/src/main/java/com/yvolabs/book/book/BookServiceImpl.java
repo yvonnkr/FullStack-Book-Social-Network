@@ -1,6 +1,7 @@
 package com.yvolabs.book.book;
 
 import com.yvolabs.book.common.PageResponse;
+import com.yvolabs.book.exception.OperationNotPermittedException;
 import com.yvolabs.book.history.BookTransactionHistory;
 import com.yvolabs.book.history.BookTransactionHistoryRepository;
 import com.yvolabs.book.user.User;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Yvonne N
@@ -130,6 +132,42 @@ public class BookServiceImpl implements BookService {
                 allReturnedBooks.isFirst(),
                 allReturnedBooks.isLast()
         );
+    }
+
+    @Override
+    public Integer updateShareableStatus(Integer bookId, Authentication connectedUser) {
+        User user = ((User) connectedUser.getPrincipal());
+
+        Book book = repository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No Book Found with ID: " + bookId));
+
+        if (userDoesNotOwnBook(book, user)) {
+            throw new OperationNotPermittedException("You cannot update other users book's shareable status");
+        }
+
+        book.setShareable(!book.isShareable());
+        repository.save(book);
+        return bookId;
+    }
+
+    @Override
+    public Integer updateArchivedStatus(Integer bookId, Authentication connectedUser) {
+        User user = ((User) connectedUser.getPrincipal());
+
+        Book book = repository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No Book Found with ID: " + bookId));
+
+        if (userDoesNotOwnBook(book, user)) {
+            throw new OperationNotPermittedException("You cannot update other users book's archived status");
+        }
+
+        book.setArchived(!book.isArchived());
+        repository.save(book);
+        return bookId;
+    }
+
+    private static boolean userDoesNotOwnBook(Book book, User user) {
+        return !Objects.equals(book.getOwner().getId(), user.getId());
     }
 
 }

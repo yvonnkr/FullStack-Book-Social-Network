@@ -1,6 +1,7 @@
 package com.yvolabs.book.handler;
 
 import com.yvolabs.book.exception.ActivationTokenException;
+import com.yvolabs.book.exception.OperationNotPermittedException;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -113,6 +114,18 @@ public class GlobalExceptionHandler {
                 .status(NOT_FOUND)
                 .body(ExceptionResponse.builder()
                         .businessErrorCode(NOT_FOUND.value())
+                        .businessErrorDescription(e.getMessage())
+                        .errors(Map.of("message", e.getMessage()))
+                        .build()
+                );
+    }
+
+    @ExceptionHandler({OperationNotPermittedException.class})
+    public ResponseEntity<ExceptionResponse> handleOperationNotPermittedException(OperationNotPermittedException e) {
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(ExceptionResponse.builder()
+                        .businessErrorCode(BAD_REQUEST.value())
                         .businessErrorDescription(e.getMessage())
                         .errors(Map.of("message", e.getMessage()))
                         .build()
