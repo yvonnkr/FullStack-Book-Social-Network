@@ -17,4 +17,7 @@ public interface BookService {
 
     PageResponse<BookResponse> findAllBooksByOwner(int page, int size, Authentication connectedUser);
 
+    PageResponse<BorrowedBookResponse> findAllBorrowedBooks(int page, int size, Authentication connectedUser);
+
+    PageResponse<BorrowedBookResponse> findAllReturnedBooks(int page, int size, Authentication connectedUser);
 }
