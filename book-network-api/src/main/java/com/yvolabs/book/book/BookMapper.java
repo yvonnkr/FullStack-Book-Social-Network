@@ -1,5 +1,6 @@
 package com.yvolabs.book.book;
 
+import com.yvolabs.book.history.BookTransactionHistory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,6 +35,18 @@ public class BookMapper {
                 .shareable(book.isShareable())
                 .owner(book.getOwner().getFullName())
                 //.cover(null) //TODO:  When we implement file upload
+                .build();
+    }
+
+    public BorrowedBookResponse toBorrowedBookResponse(BookTransactionHistory history) {
+        return BorrowedBookResponse.builder()
+                .id(history.getBook().getId())
+                .title(history.getBook().getTitle())
+                .authorName(history.getBook().getAuthorName())
+                .isbn(history.getBook().getIsbn())
+                .rate(history.getBook().getRate())
+                .returned(history.isReturned())
+                .returnApproved(history.isReturnApproved())
                 .build();
     }
 }
