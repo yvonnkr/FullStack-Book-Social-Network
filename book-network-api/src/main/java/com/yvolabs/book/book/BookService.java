@@ -24,4 +24,6 @@ public interface BookService {
     Integer updateShareableStatus(Integer bookId, Authentication connectedUser);
 
     Integer updateArchivedStatus(Integer bookId, Authentication connectedUser);
+
+    Integer borrowBook(Integer bookId, Authentication connectedUser);
 }
