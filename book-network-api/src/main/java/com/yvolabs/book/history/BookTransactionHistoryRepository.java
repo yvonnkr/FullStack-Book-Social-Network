@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author Yvonne N
@@ -24,4 +25,23 @@ public interface BookTransactionHistoryRepository extends JpaRepository<BookTran
                 WHERE history.book.owner.id = :userId
             """)
     Page<BookTransactionHistory> findAllReturnedBooks(Pageable pageable, Integer userId);
+
+    @Query("""
+            SELECT
+            (COUNT (*) > 0) AS isBorrowed
+            FROM BookTransactionHistory bookTransactionHistory
+            WHERE bookTransactionHistory.user.id = :userId
+            AND bookTransactionHistory.book.id = :bookId
+            AND bookTransactionHistory.returnApproved = false
+            """)
+    boolean isAlreadyBorrowedByUser(@Param("bookId") Integer bookId, @Param("userId") Integer userId);
+
+    @Query("""
+            SELECT
+            (COUNT (*) > 0) AS isBorrowed
+            FROM BookTransactionHistory bookTransactionHistory
+            WHERE bookTransactionHistory.book.id = :bookId
+            AND bookTransactionHistory.returnApproved = false
+            """)
+    boolean isAlreadyBorrowed(@Param("bookId") Integer bookId);
 }
