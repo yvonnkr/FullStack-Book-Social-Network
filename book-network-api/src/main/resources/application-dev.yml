@@ -32,7 +32,7 @@ spring:
         timeout: 3000
         writetimeout: 5000
 
-#custom properties
+#custom application properties
 application:
   security:
     jwt:
@@ -44,3 +44,6 @@ application:
     from-email: ${FROM_EMAIL}
     frontend:
       activation-url: http://localhost:4200/activate-account
+  file:
+    uploads:
+      photos-output-path: ./uploads

@@ -1,12 +1,14 @@
 package com.yvolabs.book.book;
 
 import com.yvolabs.book.common.PageResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Yvonne N
@@ -93,6 +95,16 @@ public class BookController {
     public ResponseEntity<Integer> approveReturnBorrowedBook(@PathVariable("book-id") Integer bookId, Authentication connectedUser
     ) {
         return ResponseEntity.ok(service.approveReturnBorrowedBook(bookId, connectedUser));
+    }
+
+    @PostMapping(value = "/cover/{book-id}", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadBookCoverPicture(@PathVariable(name = "book-id") Integer bookId,
+                                                    @Parameter() //swagger
+                                                    @RequestPart("file") MultipartFile file,
+                                                    Authentication connectedUser
+    ) {
+        service.uploadBookCoverPicture(file, bookId, connectedUser);
+        return ResponseEntity.accepted().build();
     }
 
 }
