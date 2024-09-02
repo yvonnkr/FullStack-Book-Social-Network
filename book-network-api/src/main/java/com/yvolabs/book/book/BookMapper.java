@@ -1,5 +1,6 @@
 package com.yvolabs.book.book;
 
+import com.yvolabs.book.file.FileUtils;
 import com.yvolabs.book.history.BookTransactionHistory;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ public class BookMapper {
                 .archived(book.isArchived())
                 .shareable(book.isShareable())
                 .owner(book.getOwner().getFullName())
-                //.cover(null) //TODO:  When we implement file upload
+                .cover(FileUtils.readFileFromLocation(book.getBookCover()))
                 .build();
     }
 
