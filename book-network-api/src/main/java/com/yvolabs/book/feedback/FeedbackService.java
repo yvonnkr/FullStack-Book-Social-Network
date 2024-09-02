@@ -1,5 +1,6 @@
 package com.yvolabs.book.feedback;
 
+import com.yvolabs.book.common.PageResponse;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -9,4 +10,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface FeedbackService {
     Integer saveFeedback(FeedbackRequest request, Authentication connectedUser);
+
+    PageResponse<FeedbackResponse> findAllFeedbacksByBook(Integer bookId, int page, int size, Authentication connectedUser);
 }
