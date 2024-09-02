@@ -2,6 +2,7 @@ package com.yvolabs.book.book;
 
 import com.yvolabs.book.common.PageResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Yvonne N
@@ -30,4 +31,6 @@ public interface BookService {
     Integer returnBorrowedBook(Integer bookId, Authentication connectedUser);
 
     Integer approveReturnBorrowedBook(Integer bookId, Authentication connectedUser);
+
+    void uploadBookCoverPicture(MultipartFile file, Integer bookId, Authentication connectedUser);
 }

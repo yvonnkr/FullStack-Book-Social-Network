@@ -2,6 +2,7 @@ package com.yvolabs.book.book;
 
 import com.yvolabs.book.common.PageResponse;
 import com.yvolabs.book.exception.OperationNotPermittedException;
+import com.yvolabs.book.file.FileStorageService;
 import com.yvolabs.book.history.BookTransactionHistory;
 import com.yvolabs.book.history.BookTransactionHistoryRepository;
 import com.yvolabs.book.user.User;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +32,7 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
     private final BookRepository repository;
     private final BookTransactionHistoryRepository transactionHistoryRepository;
+    private final FileStorageService fileStorageService;
 
     @Override
     public Integer save(BookRequest request, Authentication connectedUser) {
@@ -239,6 +242,21 @@ public class BookServiceImpl implements BookService {
 
         bookTransactionHistory.setReturnApproved(true);
         return transactionHistoryRepository.save(bookTransactionHistory).getId();
+    }
+
+    @Override
+    public void uploadBookCoverPicture(MultipartFile file, Integer bookId, Authentication connectedUser) {
+        Book book = repository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No book found with ID: " + bookId));
+
+        User user = ((User) connectedUser.getPrincipal());
+        if (!userOwnsBook(book, user)) {
+            throw new OperationNotPermittedException("You cannot upload cover pictures for books you do not own");
+        }
+
+        String bookCoverPicture = fileStorageService.saveFile(file, bookId, user.getId());
+        book.setBookCover(bookCoverPicture);
+        repository.save(book);
     }
 
     private static boolean userOwnsBook(Book book, User user) {
