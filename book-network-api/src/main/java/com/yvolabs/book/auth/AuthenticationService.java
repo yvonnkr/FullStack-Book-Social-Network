@@ -28,6 +28,8 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static com.yvolabs.book.enums.RoleName.USER;
 
@@ -94,18 +96,12 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public String activateAccount(String token) throws MessagingException {
+    public String activateAccount(String token) {
 
         Token savedToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ActivationTokenException("Invalid activation token"));
 
-        if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
-            sendValidationEmail(savedToken.getUser());
-            return "Activation token has expired. A new token has been sent to the same email address";
-
-            // @NOTE: Because sendValidationEmail() is Async, if we throw this error, the data is not being saved to db, so instead I returned the error as a string
-            // throw new ActivationTokenException("Activation token has expired. A new token has been sent to the same email address");
-        }
+        checkIfActivationTokenHasExpired(savedToken);
 
         User user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + savedToken.getUser().getId()));
@@ -117,6 +113,29 @@ public class AuthenticationService {
         tokenRepository.save(savedToken);
         return ACCOUNT_ACTIVATED_MESSAGE;
 
+    }
+
+    private void checkIfActivationTokenHasExpired(Token savedToken) {
+        // Because sendValidationEmail() is Async, if we throw, the data is not being saved to db,Hence needed to use CompletableFuture.runAsync()
+        if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                try {
+                    sendValidationEmail(savedToken.getUser());
+                    throw new ActivationTokenException("Activation token has expired. A new token has been sent to the same email address");
+                } catch (RuntimeException | MessagingException e) {
+                    throw new ActivationTokenException(e.getMessage());
+                }
+            });
+
+            try {
+                future.get();
+                log.info("CompletableFuture CAllED");
+            } catch (RuntimeException | InterruptedException | ExecutionException e) {
+                log.warn("CompletableFuture Exception: {}", e.getMessage());
+                log.warn("Failed to activate account with token: {} ", savedToken.getToken());
+                throw new ActivationTokenException(e.getCause().getMessage());
+            }
+        }
     }
 
     private void sendValidationEmail(User user) throws MessagingException {
