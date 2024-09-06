@@ -60,7 +60,7 @@ public class Book extends BaseEntity {
 
         // Return 4.0 if roundedRate is less than 4.5, otherwise return 4.5
         double roundedRate = Math.round(rate * 10.0) / 10.0;
-        log.info("AverageRate = {}, RoundedAverageRate = {}", rate, roundedRate);
+//        log.info("AverageRate = {}, RoundedAverageRate = {}", rate, roundedRate);
         return roundedRate;
     }
 }
