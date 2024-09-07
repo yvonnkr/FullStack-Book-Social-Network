@@ -16,10 +16,10 @@ import {BookCardComponent} from "../../components/book-card/book-card.component"
   styleUrl: './book-list.component.scss'
 })
 export class BookListComponent implements OnInit {
-   bookResponse: PageResponseBookResponse = {};
-   page = 0;
-   size = 5;
-
+  bookResponse: PageResponseBookResponse = {};
+  page = 0;
+  pages: any = [];
+  size = 5;
 
   constructor(private bookService: BookService, private router: Router) {
   }
@@ -34,8 +34,48 @@ export class BookListComponent implements OnInit {
       .subscribe({
         next: (books) => {
           this.bookResponse = books;
+          this.pages = Array(this.bookResponse.totalPages)
+            .fill(0)
+            .map((x, i) => i)
         },
-        error: (err) => {}
+        error: (err) => {
+        }
       })
   }
+
+  // Pagination
+
+  goToFirstPage() {
+    this.page = 0;
+    this.findAllBooks()
+  }
+
+  goToPreviousPage() {
+    this.page--;
+    this.findAllBooks()
+  }
+
+  goToPage(page: number) {
+    this.page = page
+    this.findAllBooks()
+  }
+
+  goToNextPage() {
+    this.page++;
+    this.findAllBooks()
+  }
+
+  goToLastPage() {
+    this.page = this.lastPage
+    this.findAllBooks()
+  }
+
+  get isLastPage(): boolean {
+    return this.page === this.lastPage
+  }
+
+  get lastPage(): number {
+    return this.bookResponse.totalPages as number - 1
+  }
+
 }

@@ -14,16 +14,36 @@
       <app-rating [rating]="book.rate || 0"></app-rating>
       <span class="fw-bold" *ngIf="book.rate || 0 > 0">{{ book.rate }}</span>
     </div>
+
     <div class="d-flex gap-2" *ngIf="!manage">
-      <i (click)="onShowDetails()" class="fas fa-circle-info text-primary"></i>
-      <i (click)="onBorrow()" class="fas fa-list-check text-primary"></i>
-      <i (click)="onAddToWaitingList()" class="fas fa-heart text-danger"></i>
+      <div class="tooltip-container">
+        <i (click)="onShowDetails()" class="fas fa-circle-info text-primary"></i>
+        <span class="tooltip-text">Show Details</span>
+      </div>
+      <div class="tooltip-container">
+        <i (click)="onBorrow()" class="fas fa-list-check text-primary"></i>
+        <span class="tooltip-text">Borrow Book</span>
+      </div>
+      <div class="tooltip-container">
+        <i (click)="onAddToWaitingList()" class="fas fa-heart text-danger"></i>
+        <span class="tooltip-text">Add to waiting list</span>
+      </div>
 
     </div>
+
     <div class="d-flex gap-2" *ngIf="manage">
-      <i (click)="onEdit()" class="fas fa-edit text-success"></i>
-      <i (click)="onShare()" class="fas fa-share-nodes text-primary"></i>
-      <i (click)="onArchive()" class="fas fa-archive text-danger"></i>
+      <div class="tooltip-container">
+        <i (click)="onEdit()" class="fas fa-edit text-success"></i>
+        <span class="tooltip-text">Edit book</span>
+      </div>
+      <div class="tooltip-container">
+        <i (click)="onShare()" class="fas fa-share-nodes text-primary"></i>
+        <span class="tooltip-text">Share book</span>
+      </div>
+      <div class="tooltip-container">
+        <i (click)="onArchive()" class="fas fa-archive text-danger"></i>
+        <span class="tooltip-text">Archive book</span>
+      </div>
     </div>
   </div>
 </div>

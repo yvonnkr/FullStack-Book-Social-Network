@@ -12,3 +12,34 @@ i {
 ::-webkit-scrollbar {
   display: none;
 }
+
+// CUSTOM Tooltip on hover
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
+  bottom: 125%; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  white-space: nowrap;
+
+  /* Tooltip arrow */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
