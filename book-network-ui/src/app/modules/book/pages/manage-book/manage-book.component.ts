@@ -1,8 +1,8 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
 import {BookRequest} from "../../../../services/models/book-request";
 import {FormsModule} from "@angular/forms";
-import {Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {BookService} from "../../../../services/services/book.service";
 
 @Component({
@@ -17,13 +17,38 @@ import {BookService} from "../../../../services/services/book.service";
   templateUrl: './manage-book.component.html',
   styleUrl: './manage-book.component.scss'
 })
-export class ManageBookComponent {
+export class ManageBookComponent implements OnInit {
   bookRequest: BookRequest = {authorName: "", isbn: "", synopsis: "", title: ""};
   errorMsg: Array<string> = [];
   selectedBookCover: any;
   selectedPicture: string | undefined;
 
-  constructor(private bookService: BookService, private router: Router) {
+  constructor(private bookService: BookService, private router: Router, private activatedRoute: ActivatedRoute) {
+  }
+
+  ngOnInit(): void {
+    const bookId = this.activatedRoute.snapshot.params['bookId'];
+    if (bookId) {
+      this.bookService.findBookById({'book-id': bookId})
+        .subscribe({
+          next: (book) => {
+            this.bookRequest = {
+              id: bookId,
+              title: book.title as string,
+              authorName: book.authorName as string,
+              isbn: book.isbn as string,
+              synopsis: book.synopsis as string,
+              shareable: book.shareable,
+            };
+
+            this.selectedPicture = book.cover && 'data:image/jpg;base64,' + book.cover;
+          },
+          error: (err) => {
+            console.log(err)
+          }
+        })
+
+    }
   }
 
   onFileSelected(event: any) {
