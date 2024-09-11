@@ -31,60 +31,13 @@
     </tbody>
   </table>
 
-  <div class="d-flex justify-content-center mt-3 ">
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          <a (click)="goToFirstPage()"
-             [class.disabled]="page == 0"
-             href="javascript:void(0)"
-             class="page-link"
-             aria-label="First"
-          >
-            <i class="fa-solid fa-angles-left"></i>
-          </a>
-        </li>
-        <li class="page-item">
-          <a (click)="goToPreviousPage()"
-             [class.disabled]="page == 0"
-             href="javascript:void(0)"
-             class="page-link"
-             aria-label="Previous"
-          >
-            <i class="fa-solid fa-angle-left"></i>
-          </a>
-        </li>
-        <li class="page-item" *ngFor="let pageIndex of pages">
-          <a (click)="goToPage(pageIndex)"
-             [class.active]="page === pageIndex"
-             href="javascript:void(0)"
-             class="page-link"
-             aria-label="Current page"
-          >
-            {{ pageIndex + 1 }}
-          </a>
-        </li>
-        <li class="page-item">
-          <a (click)="goToNextPage()"
-             [class.disabled]="isLastPage"
-             href="javascript:void(0)"
-             class="page-link"
-             aria-label="Next"
-          >
-            <i class="fa-solid fa-chevron-right"></i>
-          </a>
-        </li>
-        <li class="page-item">
-          <a (click)="goToLastPage()"
-             [class.disabled]="isLastPage"
-             href="javascript:void(0)"
-             class="page-link"
-             aria-label="Last"
-          >
-            <i class="fa-solid fa-angles-right"></i>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
+  <app-pagination
+    [page]="page"
+    [size]="size"
+    [pages]="pages"
+    [totalPages]="borrowedBooks.totalPages"
+    (pageChanged)="onPageChanged($event)"
+  >
+  </app-pagination>
+
 </div>

@@ -6,6 +6,7 @@ import {NgForOf, NgIf} from "@angular/common";
 import {BookCardComponent} from "../../components/book-card/book-card.component";
 import {BookResponse} from "../../../../services/models/book-response";
 import {HttpErrorResponse} from "@angular/common/http";
+import {PaginationComponent} from "../../components/pagination/pagination.component";
 
 @Component({
   selector: 'app-book-list',
@@ -13,7 +14,8 @@ import {HttpErrorResponse} from "@angular/common/http";
   imports: [
     NgForOf,
     BookCardComponent,
-    NgIf
+    NgIf,
+    PaginationComponent
   ],
   templateUrl: './book-list.component.html',
   styleUrl: './book-list.component.scss'
@@ -31,59 +33,25 @@ export class BookListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.findAllBooks();
+    this.findAllBooks(this.page);
   }
 
+  onPageChanged(page: number) {
+    this.findAllBooks(page);
+  }
 
-  private findAllBooks() {
-    this.bookService.findAllBooks({page: this.page, size: this.size})
+  private findAllBooks(page: number) {
+    this.bookService.findAllBooks({page: page, size: this.size})
       .subscribe({
         next: (books) => {
           this.bookResponse = books;
-          this.pages = Array(this.bookResponse.totalPages)
-            .fill(0)
-            .map((x, i) => i)
+          this.pages = PaginationComponent
+            .getPages(this.bookResponse.totalPages as number)
         },
         error: (err) => {
         }
       })
   }
-
-  //Pagination Start
-  goToFirstPage() {
-    this.page = 0;
-    this.findAllBooks()
-  }
-
-  goToPreviousPage() {
-    this.page--;
-    this.findAllBooks()
-  }
-
-  goToPage(page: number) {
-    this.page = page
-    this.findAllBooks()
-  }
-
-  goToNextPage() {
-    this.page++;
-    this.findAllBooks()
-  }
-
-  goToLastPage() {
-    this.page = this.lastPage
-    this.findAllBooks()
-  }
-
-  get isLastPage(): boolean {
-    return this.page === this.lastPage
-  }
-
-  get lastPage(): number {
-    return this.bookResponse.totalPages as number - 1
-  }
-
-  //Pagination End
 
   borrowBook(book: BookResponse) {
     this.bookService.borrowBook({'book-id': book.id as number})
@@ -109,6 +77,5 @@ export class BookListComponent implements OnInit {
       this.level = '';
     }, 5000);
   }
-
 
 }
