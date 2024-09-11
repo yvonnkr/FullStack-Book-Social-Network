@@ -1,6 +1,79 @@
 <h2>My Borrowed Books</h2>
 <hr>
-<div>
+<div class="row" *ngIf="selectedBook">
+  <div class="col-6">
+    <h2 class="text-info">Return and share feedback</h2>
+    <div class="row">
+      <div class="col-md-2">
+        <strong>Title</strong>
+      </div>
+      <div class="col-md-10">
+        {{ selectedBook.title }}
+      </div>
+      <div class="col-md-2">
+        <strong>Author</strong>
+      </div>
+      <div class="col-md-10">
+        {{ selectedBook.authorName }}
+      </div>
+      <div class="col-md-2">
+        <strong>ISBN</strong>
+      </div>
+      <div class="col-md-10">
+        {{ selectedBook.isbn }}
+      </div>
+      <div class="col-md-2">
+        <strong>Rate</strong>
+      </div>
+      <div class="col-md-10">
+        {{ selectedBook.rate }}
+      </div>
+    </div>
+    <hr>
+    <div class="col-md-12">
+      <form action="" class="row gap-3">
+        <div class="d-flex gap-3">
+          <input [(ngModel)]="feedbackRequest.note"
+                 type="range"
+                 id="rate"
+                 name="rate"
+                 class="form-range w-25"
+                 min="0"
+                 max="5"
+                 step="0.5"
+          >
+          <app-rating [rating]="feedbackRequest.note || 0"></app-rating>
+          {{ feedbackRequest.note }}
+        </div>
+        <div class="col-12">
+          <label for="feedback" class="form-label fw-bold">Feedback</label>
+          <textarea [(ngModel)]="feedbackRequest.comment"
+                    rows="4"
+                    class="form-control"
+                    id="feedback"
+                    name="feedback"
+                    placeholder="Please leave your feedback"
+          >
+          </textarea>
+        </div>
+        <div class="d-flex justify-content-end gap-2 col-12">
+          <button (click)="returnBook(true)" type="submit" class="btn btn-outline-info">
+            <i class="fas fa-save"></i>&nbsp; Rate the book and return
+          </button>
+          <button (click)="returnBook(false)" type="submit" class="btn btn-outline-success">
+            <i class="fa-solid fa-paper-plane"></i>&nbsp; Just return book
+          </button>
+          <button (click)="selectedBook = undefined" class="btn btn-link text-danger text-decoration-none fw-bold">
+            <i class="fas fa-times"></i>&nbsp; Cancel
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!selectedBook">
   <table class="table">
     <thead>
     <tr>
@@ -21,8 +94,8 @@
       <td><i class="fa fa-star text-warning"></i> {{ book.rate }}</td>
       <td>
         <div class="d-flex gap-2">
-          <i *ngIf="book.returned" class="fa-regular fa-paper-plane text-primary"></i>
-          <i *ngIf="!book.returned" (click)="returnBorrowedBook(book)" class="fa-solid fa-paper-plane text-success"></i>
+          <i *ngIf="book.returned" class="fa-regular fa-paper-plane text-primary cursor-pointer"></i>
+          <i *ngIf="!book.returned" (click)="returnBorrowedBook(book)" class="fa-solid fa-paper-plane text-success cursor-pointer"></i>
           <i class="fa-solid fa-circle-check" [class.text-success]="book.returnApproved"></i>
         </div>
       </td>
